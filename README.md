@@ -1,4 +1,4 @@
-# ERP System
+# NexaERP
 
 A small-business ERP monorepo for inventory, sales, purchase, billing, customer/supplier management, user roles, and reporting.
 
