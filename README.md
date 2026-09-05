@@ -31,6 +31,26 @@ npm run start
 
 This starts PostgreSQL + Redis and launches the API and web app together.
 
+## Need to install first (software downloads)
+
+Before running the project, install these tools on Windows:
+
+- Node.js LTS: https://nodejs.org/
+- Git: https://git-scm.com/download/win
+- Docker Desktop: https://www.docker.com/products/docker-desktop/
+- WSL 2 (usually installed by Docker or Windows setup): https://learn.microsoft.com/windows/wsl/install
+- VS Code: https://code.visualstudio.com/
+- PostgreSQL client (optional for manual DB access): https://www.postgresql.org/download/windows/
+
+After installing the software, open PowerShell and run:
+
+```powershell
+npm install
+npm run docker:up
+npm run dev:api
+npm run dev:web
+```
+
 ## Apps
 
 - `apps/web` — frontend dashboard and business screens
