@@ -17,7 +17,7 @@ A small-business ERP monorepo for inventory, sales, purchase, billing, customer/
 
 ## Quick install for Windows
 
-Run this from the project root:
+Run this from the project root to install everything and bring up the required services:
 
 ```powershell
 npm run setup
@@ -39,7 +39,29 @@ If you are already on a machine with Docker and WSL configured, you can skip the
 npm run setup:project -- -SkipWslInstall -SkipDockerInstall -SkipDockerStart
 ```
 
+## Start the app after setup
+
+Once the setup has completed successfully, start the ERP app from the project root:
+
+```powershell
+npm run start
+```
+
+This command will:
+
+- start PostgreSQL and Redis if Docker is available
+- print the app URLs
+- launch the API and web app together
+
+A shorter alias is also available:
+
+```powershell
+npm run app
+```
+
 ## Local development
+
+If you only want to run the app manually after dependencies are already installed:
 
 1. Copy `.env.example` to `.env`
 2. Start supporting services:
