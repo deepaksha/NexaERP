@@ -41,3 +41,13 @@ A small-business ERP monorepo for inventory, sales, purchase, billing, customer/
 - Use PostgreSQL and Redis in the server environment
 - Put the app behind Cloudflare or Nginx SSL termination
 - Configure backups, monitoring, and environment secrets
+
+## Team collaboration workflow
+
+- Base branch for releases: `main`
+- Shared integration branch: `develop`
+- Work branches: `feature/*`, `fix/*`, `hotfix/*`
+- Open pull requests with the provided template
+- Track work with GitHub issues using the project templates
+
+See `CONTRIBUTING.md` for the full branch and PR process.

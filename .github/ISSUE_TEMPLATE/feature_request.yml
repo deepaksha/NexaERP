@@ -1,0 +1,41 @@
+name: Feature request
+description: Propose a new ERP feature or enhancement
+title: "feat: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What business problem are we solving?
+      placeholder: As an accountant, I need ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Explain your preferred approach.
+      placeholder: Add a monthly GST report export in CSV and PDF.
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and impact
+      description: Mention affected modules and any risks.
+      placeholder: Impacts reports module and billing data aggregation.
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: List measurable criteria.
+      placeholder: |
+        - User can select month and financial year
+        - Export generates under 10 seconds for 10k records
+    validations:
+      required: true
