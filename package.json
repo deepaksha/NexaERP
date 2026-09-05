@@ -1,0 +1,15 @@
+{
+  "name": "erp-system",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev:web": "npm --prefix apps/web run dev",
+    "dev:api": "npm --prefix apps/api run start:dev",
+    "build:web": "npm --prefix apps/web run build",
+    "build:api": "npm --prefix apps/api run build",
+    "lint:web": "npm --prefix apps/web run lint",
+    "lint:api": "npm --prefix apps/api run lint",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  }
+}
