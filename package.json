@@ -3,13 +3,26 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
+    "start": "npm run docker:up:optional && npm run start:info && npm run start:app",
+    "app": "npm run start",
+    "start:info": "node -e \"console.log('Developer URLs:');console.log('Web: http://localhost:3000');console.log('API: http://localhost:4000/api');\"",
+    "start:app": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "start:full": "npm run docker:up && npm run start:info && npm run start:app",
+    "setup": "npm run setup:project",
+    "setup:project": "powershell -ExecutionPolicy Bypass -File .\\scripts\\setup-project.ps1",
+    "setup:windows-docker": "powershell -ExecutionPolicy Bypass -File .\\scripts\\windows-enable-docker-prereqs.ps1",
+    "setup:windows-docker:skip-wsl": "powershell -ExecutionPolicy Bypass -File .\\scripts\\windows-enable-docker-prereqs.ps1 -SkipWslInstall",
     "dev:web": "npm --prefix apps/web run dev",
     "dev:api": "npm --prefix apps/api run start:dev",
     "build:web": "npm --prefix apps/web run build",
     "build:api": "npm --prefix apps/api run build",
     "lint:web": "npm --prefix apps/web run lint",
     "lint:api": "npm --prefix apps/api run lint",
+    "docker:up:optional": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"if (Get-Command docker -ErrorAction SilentlyContinue) { docker compose up -d; if ($LASTEXITCODE -ne 0) { Write-Host 'Docker is installed but not running. Starting app without containers.' } } else { Write-Host 'Docker not found. Starting app without containers.' }\"",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
   }
 }
