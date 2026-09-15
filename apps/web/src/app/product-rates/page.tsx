@@ -311,7 +311,7 @@ export default function ProductRatesPage() {
         <div className="grid gap-6 lg:grid-cols-2">
           <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-slate-900">Today's Rates</h2>
+              <h2 className="text-xl font-bold text-slate-900">Today&apos;s Rates</h2>
               <span className="text-sm text-slate-500">{todayDate()}</span>
             </div>
 
