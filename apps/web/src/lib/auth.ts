@@ -8,32 +8,42 @@ const userAccessMap: Record<string, UserAccess> = {
   'super-admin': {
     role: 'Super Admin',
     permissions: ['view', 'create', 'edit', 'delete'],
-    pages: ['dashboard', 'products', 'sales', 'purchases', 'billing', 'users', 'settings'],
+    pages: ['dashboard', 'products', 'product-rates', 'sales', 'purchases', 'purchase-orders', 'billing', 'customers', 'users', 'settings', 'reports'],
   },
   admin: {
     role: 'Admin',
     permissions: ['view', 'create', 'edit'],
-    pages: ['dashboard', 'products', 'sales', 'purchases', 'billing', 'users'],
+    pages: ['dashboard', 'products', 'product-rates', 'sales', 'purchases', 'purchase-orders', 'billing', 'customers', 'users', 'reports'],
   },
   'inventory-manager': {
     role: 'Inventory Manager',
     permissions: ['view', 'create', 'edit'],
-    pages: ['dashboard', 'products', 'purchases', 'stock'],
+    pages: ['dashboard', 'products', 'product-rates', 'purchases', 'purchase-orders', 'stock'],
   },
   'sales-manager': {
     role: 'Sales Manager',
     permissions: ['view', 'create', 'edit'],
-    pages: ['dashboard', 'sales', 'customers', 'invoices'],
+    pages: ['dashboard', 'sales', 'product-rates', 'customers', 'billing', 'invoices'],
   },
   'accounts-manager': {
     role: 'Accounts Manager',
     permissions: ['view', 'create', 'edit'],
-    pages: ['dashboard', 'billing', 'invoices', 'reports'],
+    pages: ['dashboard', 'billing', 'product-rates', 'invoices', 'reports'],
   },
   'purchase-manager': {
     role: 'Purchase Manager',
     permissions: ['view', 'create', 'edit'],
-    pages: ['dashboard', 'purchases', 'suppliers', 'inventory'],
+    pages: ['dashboard', 'purchases', 'purchase-orders', 'product-rates', 'suppliers', 'inventory'],
+  },
+  manager: {
+    role: 'Manager',
+    permissions: ['view', 'create', 'edit'],
+    pages: ['dashboard', 'purchases', 'purchase-orders', 'billing', 'reports'],
+  },
+  supervisor: {
+    role: 'Supervisor',
+    permissions: ['view', 'edit'],
+    pages: ['dashboard', 'purchase-orders', 'billing', 'reports'],
   },
   viewer: {
     role: 'Viewer',
