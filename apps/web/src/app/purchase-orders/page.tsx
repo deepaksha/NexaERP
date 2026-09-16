@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ProtectedPage } from "@/components/protected-page";
+import { useLocale } from "@/components/locale-provider";
 import { useEffect, useState } from "react";
 
 type Company = {
@@ -34,6 +35,7 @@ function toNumber(value: number | string | null | undefined): number {
 }
 
 export default function PurchaseOrdersPage() {
+  const { tx } = useLocale();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("all");
@@ -79,18 +81,18 @@ export default function PurchaseOrdersPage() {
       <div className="mx-auto max-w-7xl space-y-6 px-6 py-8">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-blue-600">Procurement</p>
-            <h1 className="mt-2 text-3xl font-bold text-slate-900">Purchase Orders</h1>
+            <p className="text-sm font-medium uppercase tracking-[0.2em] text-blue-600">{tx("Procurement")}</p>
+            <h1 className="mt-2 text-3xl font-bold text-slate-900">{tx("Purchase Orders")}</h1>
           </div>
           <div className="flex gap-2">
             <Link href="/billing" className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50">Billing Register</Link>
-            <Link href="/purchase-orders/new" className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700">New Purchase Order</Link>
+            <Link href="/purchase-orders/new" className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700">{tx("New Purchase Order")}</Link>
           </div>
         </div>
 
         <div className="grid w-full gap-2 sm:grid-cols-2 lg:grid-cols-5">
           <select value={selectedCompanyId} onChange={(event) => setSelectedCompanyId(event.target.value)} className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500">
-            <option value="all">All companies</option>
+            <option value="all">{tx("All companies")}</option>
             {companies.map((company) => (
               <option key={company.id} value={company.id}>
                 {company.parentCompany ? `${company.parentCompany.name} / ${company.name}` : company.name}
@@ -99,7 +101,7 @@ export default function PurchaseOrdersPage() {
           </select>
 
           <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500">
-            <option value="all">All status</option>
+            <option value="all">{tx("All status")}</option>
             <option value="Draft">Draft</option>
             <option value="PendingApproval">Pending approval</option>
             <option value="Approved">Approved</option>
@@ -110,21 +112,21 @@ export default function PurchaseOrdersPage() {
           </select>
 
           <select value={sortBy} onChange={(event) => setSortBy(event.target.value)} className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500">
-            <option value="poDate">Sort by date</option>
-            <option value="poNumber">Sort by PO number</option>
-            <option value="totalAmount">Sort by amount</option>
+            <option value="poDate">{tx("Sort by date")}</option>
+            <option value="poNumber">{tx("Sort by PO number")}</option>
+            <option value="totalAmount">{tx("Sort by amount")}</option>
           </select>
 
           <select value={sortOrder} onChange={(event) => setSortOrder(event.target.value as "asc" | "desc")} className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500">
-            <option value="desc">Newest first</option>
-            <option value="asc">Oldest first</option>
+            <option value="desc">{tx("Newest first")}</option>
+            <option value="asc">{tx("Oldest first")}</option>
           </select>
 
-          <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search PO number or item" className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500" />
+          <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={tx("Search PO number or item")} className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500" />
         </div>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-bold text-slate-900">PO Register</h2>
+          <h2 className="text-xl font-bold text-slate-900">{tx("PO Register")}</h2>
           {error ? <div className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
 
           <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200">
@@ -133,20 +135,20 @@ export default function PurchaseOrdersPage() {
                 <tr>
                   <th className="px-4 py-3 font-semibold">PO Number</th>
                   <th className="px-4 py-3 font-semibold">Supplier</th>
-                  <th className="px-4 py-3 font-semibold">Date</th>
-                  <th className="px-4 py-3 font-semibold">Status</th>
+                  <th className="px-4 py-3 font-semibold">{tx("Date")}</th>
+                  <th className="px-4 py-3 font-semibold">{tx("Status")}</th>
                   <th className="px-4 py-3 font-semibold">Approval</th>
-                  <th className="px-4 py-3 font-semibold">Amount</th>
+                  <th className="px-4 py-3 font-semibold">{tx("Amount")}</th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td className="px-4 py-6 text-slate-500" colSpan={6}>Loading purchase orders...</td>
+                    <td className="px-4 py-6 text-slate-500" colSpan={6}>{tx("Loading purchase orders...")}</td>
                   </tr>
                 ) : purchaseOrders.length === 0 ? (
                   <tr>
-                    <td className="px-4 py-6 text-slate-500" colSpan={6}>No purchase orders found.</td>
+                    <td className="px-4 py-6 text-slate-500" colSpan={6}>{tx("No purchase orders found.")}</td>
                   </tr>
                 ) : (
                   purchaseOrders.map((po) => (

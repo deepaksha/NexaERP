@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { useLocale } from "@/components/locale-provider";
 
 type SessionUser = {
   id: number;
@@ -14,51 +16,70 @@ type SessionUser = {
 const STORAGE_KEY = "nexaerp-session";
 
 type NavItem = {
-  label: string;
+  labelKey:
+    | "navLogin"
+    | "navRegister"
+    | "navResetPassword"
+    | "navCompanies"
+    | "navProducts"
+    | "navProductRates"
+    | "navVendors"
+    | "navBrokers"
+    | "navSales"
+    | "navBilling"
+    | "navPurchases"
+    | "navPurchaseOrders"
+    | "navReports"
+    | "navProfile";
   href: string;
 };
 
 type NavGroup = {
-  label: string;
+  id: "masters" | "transactions" | "insights";
+  labelKey: "navMasters" | "navTransactions" | "navInsights";
   items: NavItem[];
 };
 
 const authLinks: NavItem[] = [
-  { label: "Login", href: "/" },
-  { label: "Register", href: "/register" },
-  { label: "Reset Password", href: "/reset-password" },
+  { labelKey: "navLogin", href: "/" },
+  { labelKey: "navRegister", href: "/register" },
+  { labelKey: "navResetPassword", href: "/reset-password" },
 ];
 
 const groupedLinks: NavGroup[] = [
   {
-    label: "Masters",
+    id: "masters",
+    labelKey: "navMasters",
     items: [
-      { label: "Companies", href: "/companies" },
-      { label: "Products", href: "/products" },
-      { label: "Product Rates", href: "/product-rates" },
-      { label: "Vendors", href: "/vendors" },
-      { label: "Brokers", href: "/brokers" },
+      { labelKey: "navCompanies", href: "/companies" },
+      { labelKey: "navProducts", href: "/products" },
+      { labelKey: "navProductRates", href: "/product-rates" },
+      { labelKey: "navVendors", href: "/vendors" },
+      { labelKey: "navBrokers", href: "/brokers" },
     ],
   },
   {
-    label: "Transactions",
+    id: "transactions",
+    labelKey: "navTransactions",
     items: [
-      { label: "Sales", href: "/sales" },
-      { label: "Billing", href: "/billing" },
-      { label: "Purchases", href: "/purchases" },
-      { label: "Purchase Orders", href: "/purchase-orders" },
+      { labelKey: "navSales", href: "/sales" },
+      { labelKey: "navBilling", href: "/billing" },
+      { labelKey: "navPurchases", href: "/purchases" },
+      { labelKey: "navPurchaseOrders", href: "/purchase-orders" },
     ],
   },
   {
-    label: "Insights",
+    id: "insights",
+    labelKey: "navInsights",
     items: [
-      { label: "Reports", href: "/reports" },
-      { label: "Profile", href: "/profile" },
+      { labelKey: "navReports", href: "/reports" },
+      { labelKey: "navProfile", href: "/profile" },
     ],
   },
 ];
 
 export function AppHeader() {
+  const { t } = useLocale();
   const [user, setUser] = useState<SessionUser | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDesktopGroup, setActiveDesktopGroup] = useState<string | null>(null);
@@ -107,32 +128,32 @@ export function AppHeader() {
             <>
               {authLinks.map((item) => (
                 <Link key={item.href} href={item.href} className={linkClass(item.href)}>
-                  {item.label}
+                  {t[item.labelKey]}
                 </Link>
               ))}
             </>
           ) : (
             <>
               <Link href="/dashboard" className={linkClass("/dashboard")}>
-                Dashboard
+                {t.navDashboard}
               </Link>
               {groupedLinks.map((group) => {
-                const isOpen = activeDesktopGroup === group.label;
+                const isOpen = activeDesktopGroup === group.id;
                 return (
-                  <div key={group.label} className="relative">
+                  <div key={group.id} className="relative">
                     <button
                       type="button"
-                      onClick={() => setActiveDesktopGroup((current) => (current === group.label ? null : group.label))}
+                      onClick={() => setActiveDesktopGroup((current) => (current === group.id ? null : group.id))}
                       className={`rounded-lg px-2 py-1 text-sm font-medium transition ${isOpen ? "bg-slate-100 text-slate-900" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}
                       aria-expanded={isOpen}
-                      aria-controls={`desktop-menu-${group.label}`}
+                      aria-controls={`desktop-menu-${group.id}`}
                     >
-                      {group.label}
+                      {t[group.labelKey]}
                     </button>
                     {isOpen ? (
-                      <div id={`desktop-menu-${group.label}`} className="absolute right-0 top-9 z-[70] min-w-52 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+                      <div id={`desktop-menu-${group.id}`} className="absolute right-0 top-9 z-[70] min-w-52 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
                         <div className="border-b border-slate-100 bg-slate-50 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                          {group.label}
+                          {t[group.labelKey]}
                         </div>
                         <div className="p-2">
                           {group.items.map((item) => (
@@ -142,7 +163,7 @@ export function AppHeader() {
                               onClick={() => setActiveDesktopGroup(null)}
                               className={`block rounded-lg px-3 py-2 text-sm ${pathname === item.href ? "bg-slate-100 text-slate-900" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
                             >
-                              {item.label}
+                              {t[item.labelKey]}
                             </Link>
                           ))}
                         </div>
@@ -157,6 +178,7 @@ export function AppHeader() {
 
         {user ? (
           <div className="flex items-center gap-3">
+            <LanguageSwitcher />
             <Link href="/profile" className="text-sm font-medium text-slate-700 hover:text-slate-900">
               {user.fullName}
             </Link>
@@ -165,7 +187,7 @@ export function AppHeader() {
               onClick={handleLogout}
               className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800"
             >
-              Logout
+              {t.actionLogout}
             </button>
             <button
               type="button"
@@ -175,13 +197,14 @@ export function AppHeader() {
               }}
               className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 md:hidden"
             >
-              Menu
+              {t.actionMenu}
             </button>
           </div>
         ) : (
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <Link href="/" className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700">
-              Sign in
+              {t.actionSignIn}
             </Link>
             <button
               type="button"
@@ -191,7 +214,7 @@ export function AppHeader() {
               }}
               className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 md:hidden"
             >
-              Menu
+              {t.actionMenu}
             </button>
           </div>
         )}
@@ -207,7 +230,7 @@ export function AppHeader() {
                 onClick={() => setMobileOpen(false)}
                 className={`block rounded-lg px-3 py-2 text-sm ${pathname === item.href ? "bg-slate-100 text-slate-900" : "text-slate-600"}`}
               >
-                {item.label}
+                {t[item.labelKey]}
               </Link>
             ))}
           </div>
@@ -221,23 +244,23 @@ export function AppHeader() {
               }}
               className={`block rounded-lg px-3 py-2 text-sm font-medium ${pathname === "/dashboard" ? "bg-slate-100 text-slate-900" : "text-slate-700"}`}
             >
-              Dashboard
+              {t.navDashboard}
             </Link>
             {groupedLinks.map((group) => {
-              const isOpen = activeMobileGroup === group.label;
+              const isOpen = activeMobileGroup === group.id;
               return (
-                <div key={group.label} className="rounded-lg border border-slate-200">
+                <div key={group.id} className="rounded-lg border border-slate-200">
                   <button
                     type="button"
-                    onClick={() => setActiveMobileGroup((current) => (current === group.label ? null : group.label))}
+                    onClick={() => setActiveMobileGroup((current) => (current === group.id ? null : group.id))}
                     className="w-full px-3 py-2 text-left text-sm font-semibold text-slate-700"
                     aria-expanded={isOpen}
-                    aria-controls={`mobile-menu-${group.label}`}
+                    aria-controls={`mobile-menu-${group.id}`}
                   >
-                    {group.label}
+                    {t[group.labelKey]}
                   </button>
                   {isOpen ? (
-                    <div id={`mobile-menu-${group.label}`} className="border-t border-slate-200 p-2">
+                    <div id={`mobile-menu-${group.id}`} className="border-t border-slate-200 p-2">
                       {group.items.map((item) => (
                         <Link
                           key={item.href}
@@ -248,7 +271,7 @@ export function AppHeader() {
                           }}
                           className={`block rounded-md px-3 py-2 text-sm ${pathname === item.href ? "bg-slate-100 text-slate-900" : "text-slate-600"}`}
                         >
-                          {item.label}
+                          {t[item.labelKey]}
                         </Link>
                       ))}
                     </div>
