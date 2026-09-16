@@ -1,13 +1,18 @@
+"use client";
+
 import Link from "next/link";
+import { useLocale } from "@/components/locale-provider";
 
 export default function RegisterPage() {
+  const { t, tx } = useLocale();
+
   return (
     <div className="mx-auto flex min-h-[75vh] max-w-5xl items-center justify-center px-6 py-16">
       <div className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-8 shadow-lg">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-blue-600">
-          Create account
+          {t.actionCreateAccount}
         </p>
-        <h1 className="mt-3 text-3xl font-bold text-slate-900">Registration</h1>
+        <h1 className="mt-3 text-3xl font-bold text-slate-900">{tx("Registration")}</h1>
 
         <form className="mt-8 space-y-5">
           <div className="grid gap-5 md:grid-cols-2">
@@ -21,7 +26,7 @@ export default function RegisterPage() {
             </label>
 
             <label className="block text-sm font-medium text-slate-700">
-              <span className="mb-2 block">Email</span>
+              <span className="mb-2 block">{t.authEmail}</span>
               <input
                 type="email"
                 className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500"
@@ -30,7 +35,7 @@ export default function RegisterPage() {
             </label>
 
             <label className="block text-sm font-medium text-slate-700">
-              <span className="mb-2 block">Company</span>
+              <span className="mb-2 block">{tx("Company")}</span>
               <input
                 type="text"
                 className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500"
@@ -52,7 +57,7 @@ export default function RegisterPage() {
           </div>
 
           <label className="block text-sm font-medium text-slate-700">
-            <span className="mb-2 block">Password</span>
+              <span className="mb-2 block">{t.authPassword}</span>
             <input
               type="password"
               className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500"
@@ -62,13 +67,13 @@ export default function RegisterPage() {
 
           <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-between">
             <Link href="/login" className="text-sm text-slate-600 hover:text-slate-900">
-              Already have an account? Sign in
+              {tx("Already have an account? Sign in")}
             </Link>
             <Link
               href="/login"
               className="rounded-xl bg-blue-600 px-5 py-3 text-center text-sm font-medium text-white shadow-sm transition hover:bg-blue-700"
             >
-              Submit registration
+              {tx("Submit registration")}
             </Link>
           </div>
         </form>

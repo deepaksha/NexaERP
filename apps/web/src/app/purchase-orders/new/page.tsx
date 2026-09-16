@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ProtectedPage } from "@/components/protected-page";
+import { useLocale } from "@/components/locale-provider";
 import { FormEvent, useMemo, useState, useEffect } from "react";
 
 type Company = { id: number; name: string; parentCompany?: { id: number; name: string } | null };
@@ -49,6 +50,7 @@ function toNumber(value: string) {
 }
 
 export default function NewPurchaseOrderPage() {
+  const { tx } = useLocale();
   const router = useRouter();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -142,15 +144,15 @@ export default function NewPurchaseOrderPage() {
   return (
     <ProtectedPage>
       <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
-        <div className="flex items-center justify-between"><h1 className="text-3xl font-bold text-slate-900">New Purchase Request / PO</h1><Link href="/purchase-orders" className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm">Back to list</Link></div>
+        <div className="flex items-center justify-between"><h1 className="text-3xl font-bold text-slate-900">{tx("New Purchase Request / PO")}</h1><Link href="/purchase-orders" className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm">{tx("Back to list")}</Link></div>
         <form onSubmit={handleSubmit} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="grid gap-4 md:grid-cols-2">
-            <input required value={form.poNumber} onChange={(e) => setForm((c) => ({ ...c, poNumber: e.target.value.toUpperCase() }))} placeholder="PO number" className="rounded-xl border border-slate-300 px-3 py-2.5" />
+            <input required value={form.poNumber} onChange={(e) => setForm((c) => ({ ...c, poNumber: e.target.value.toUpperCase() }))} placeholder={tx("Sort by PO number")} className="rounded-xl border border-slate-300 px-3 py-2.5" />
             <input value={form.requestNumber} onChange={(e) => setForm((c) => ({ ...c, requestNumber: e.target.value.toUpperCase() }))} placeholder="Purchase request number" className="rounded-xl border border-slate-300 px-3 py-2.5" />
             <input required type="date" value={form.poDate} onChange={(e) => setForm((c) => ({ ...c, poDate: e.target.value }))} className="rounded-xl border border-slate-300 px-3 py-2.5" />
             <input type="date" value={form.expectedDeliveryDate} onChange={(e) => setForm((c) => ({ ...c, expectedDeliveryDate: e.target.value }))} className="rounded-xl border border-slate-300 px-3 py-2.5" />
-            <select required value={form.companyId} onChange={(e) => setForm((c) => ({ ...c, companyId: e.target.value, supplierId: "" }))} className="rounded-xl border border-slate-300 px-3 py-2.5"><option value="">Select company</option>{companies.map((c) => <option key={c.id} value={c.id}>{c.parentCompany ? `${c.parentCompany.name} / ${c.name}` : c.name}</option>)}</select>
-            <select required value={form.supplierId} onChange={(e) => setForm((c) => ({ ...c, supplierId: e.target.value }))} className="rounded-xl border border-slate-300 px-3 py-2.5" disabled={!form.companyId}><option value="">Select supplier</option>{companySuppliers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
+            <select required value={form.companyId} onChange={(e) => setForm((c) => ({ ...c, companyId: e.target.value, supplierId: "" }))} className="rounded-xl border border-slate-300 px-3 py-2.5"><option value="">{tx("Select company")}</option>{companies.map((c) => <option key={c.id} value={c.id}>{c.parentCompany ? `${c.parentCompany.name} / ${c.name}` : c.name}</option>)}</select>
+            <select required value={form.supplierId} onChange={(e) => setForm((c) => ({ ...c, supplierId: e.target.value }))} className="rounded-xl border border-slate-300 px-3 py-2.5" disabled={!form.companyId}><option value="">{tx("Select supplier")}</option>{companySuppliers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
           </div>
 
           <div className="rounded-xl border border-slate-200 p-4">
@@ -177,7 +179,7 @@ export default function NewPurchaseOrderPage() {
 
           <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">Subtotal: Rs {subtotal.toLocaleString("en-IN")} | Total: Rs {total.toLocaleString("en-IN")}</div>
           {error ? <div className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
-          <button type="submit" disabled={isSaving} className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white">{isSaving ? "Saving..." : "Save purchase request"}</button>
+          <button type="submit" disabled={isSaving} className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white">{isSaving ? "Saving..." : tx("Save purchase request")}</button>
         </form>
       </div>
     </ProtectedPage>
