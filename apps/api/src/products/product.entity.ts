@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { CompanyEntity } from '../companies/company.entity';
 
 @Entity('products')
 export class ProductEntity {
@@ -14,11 +15,18 @@ export class ProductEntity {
   @Column()
   category!: string;
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
-  price!: number;
+  @ManyToOne(() => CompanyEntity, { nullable: true })
+  @JoinColumn({ name: 'company_id' })
+  company?: CompanyEntity;
+
+  @Column({ name: 'company_id', nullable: true })
+  companyId?: number;
 
   @Column({ default: 0 })
   stock!: number;
+
+  @Column({ name: 'lowstockthreshold', default: 15 })
+  lowStockThreshold!: number;
 
   @Column({ default: 'Active' })
   status!: string;

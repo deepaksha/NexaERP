@@ -10,14 +10,18 @@ export class ProductsService {
     private readonly productRepository: Repository<ProductEntity>,
   ) {}
 
-  async findAll(search?: string) {
+  async findAll(search?: string, companyId?: number) {
     const query = this.productRepository.createQueryBuilder('product');
 
     if (search) {
-      query.where(
-        'LOWER(product.name) LIKE :search OR LOWER(product.sku) LIKE :search OR LOWER(product.category) LIKE :search',
+      query.andWhere(
+        '(LOWER(product.name) LIKE :search OR LOWER(product.sku) LIKE :search OR LOWER(product.category) LIKE :search)',
         { search: `%${search.toLowerCase()}%` },
       );
+    }
+
+    if (companyId) {
+      query.andWhere('product.companyId = :companyId', { companyId });
     }
 
     return query.orderBy('product.createdAt', 'DESC').getMany();

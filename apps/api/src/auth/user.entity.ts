@@ -1,4 +1,5 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { CompanyEntity } from '../companies/company.entity';
 import { UserRoleEntity } from './user-role.entity';
 
 @Entity('users')
@@ -17,6 +18,10 @@ export class UserEntity {
 
   @Column({ nullable: true })
   phone?: string;
+
+  @ManyToOne(() => CompanyEntity, (company) => company.users, { nullable: true, eager: true })
+  @JoinColumn({ name: 'company_id' })
+  company?: CompanyEntity;
 
   @Column({ default: true })
   isActive!: boolean;

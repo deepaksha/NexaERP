@@ -16,8 +16,9 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  findAll(@Query('search') search?: string) {
-    return this.productsService.findAll(search);
+  findAll(@Query('search') search?: string, @Query('companyId') companyId?: string) {
+    const parsedCompanyId = companyId && companyId !== 'all' ? Number(companyId) : undefined;
+    return this.productsService.findAll(search, parsedCompanyId);
   }
 
   @Get(':id')
