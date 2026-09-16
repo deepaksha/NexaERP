@@ -1,6 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useLocale } from "@/components/locale-provider";
 
 export default function LoginPage() {
+  const { t } = useLocale();
+
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-5xl items-center justify-center px-6 py-16">
       <div className="grid w-full overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg md:grid-cols-2">
@@ -10,28 +15,28 @@ export default function LoginPage() {
               NexaERP
             </p>
             <h1 className="mt-6 text-4xl font-bold leading-tight">
-              Manage your operations from one place.
+              {t.authRunBusiness}
             </h1>
           </div>
 
           <div className="space-y-4 text-sm text-slate-300">
-            <p>• Inventory tracking</p>
-            <p>• Sales and billing</p>
-            <p>• Supplier and customer management</p>
+            <p>{`• ${t.authInventoryMgmt}`}</p>
+            <p>{`• ${t.authSalesInvoicing}`}</p>
+            <p>{`• ${t.authPurchaseReporting}`}</p>
           </div>
         </div>
 
         <div className="p-8 md:p-10">
           <div className="mb-8">
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-blue-600">
-              Welcome back
+              {t.authWelcomeBack}
             </p>
-            <h2 className="mt-2 text-3xl font-bold text-slate-900">Sign in</h2>
+            <h2 className="mt-2 text-3xl font-bold text-slate-900">{t.actionSignIn}</h2>
           </div>
 
           <form className="space-y-5">
             <label className="block text-sm font-medium text-slate-700">
-              <span className="mb-2 block">Email</span>
+              <span className="mb-2 block">{t.authEmail}</span>
               <input
                 type="email"
                 defaultValue="admin@nexaerp.com"
@@ -40,7 +45,7 @@ export default function LoginPage() {
             </label>
 
             <label className="block text-sm font-medium text-slate-700">
-              <span className="mb-2 block">Password</span>
+              <span className="mb-2 block">{t.authPassword}</span>
               <input
                 type="password"
                 defaultValue="password123"
@@ -51,10 +56,10 @@ export default function LoginPage() {
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 text-slate-600">
                 <input type="checkbox" className="h-4 w-4 rounded border-slate-300" />
-                Remember me
+                {t.authRememberMe}
               </label>
               <a href="#" className="text-blue-600 hover:text-blue-700">
-                Forgot password?
+                {t.authResetPasswordLink}
               </a>
             </div>
 
@@ -62,13 +67,13 @@ export default function LoginPage() {
               href="/dashboard"
               className="block rounded-xl bg-blue-600 px-4 py-3 text-center font-medium text-white shadow-sm transition hover:bg-blue-700"
             >
-              Sign in
+              {t.actionSignIn}
             </Link>
 
             <p className="text-center text-sm text-slate-500">
-              Need an account?{" "}
+              {`${t.authNewHere} `}
               <Link href="/register" className="font-medium text-blue-600 hover:text-blue-700">
-                Register here
+                {t.authCreateAccountLink}
               </Link>
             </p>
           </form>

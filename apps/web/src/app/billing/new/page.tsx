@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ProtectedPage } from "@/components/protected-page";
+import { useLocale } from "@/components/locale-provider";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 type Company = { id: number; name: string; parentCompany?: { id: number; name: string } | null };
@@ -77,6 +78,7 @@ function toNumber(value: number | string | null | undefined): number {
 }
 
 export default function NewBillingPage() {
+  const { tx } = useLocale();
   const router = useRouter();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -255,25 +257,25 @@ export default function NewBillingPage() {
       <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-blue-600">Finance</p>
-            <h1 className="mt-2 text-3xl font-bold text-slate-900">New Billing / Purchase Register Entry</h1>
+            <p className="text-sm font-medium uppercase tracking-[0.2em] text-blue-600">{tx("Finance")}</p>
+            <h1 className="mt-2 text-3xl font-bold text-slate-900">{tx("New Billing / Purchase Register Entry")}</h1>
           </div>
-          <Link href="/billing" className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Back to list</Link>
+          <Link href="/billing" className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">{tx("Back to list")}</Link>
         </div>
 
-        {isLoading ? <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">Loading form...</div> : (
+        {isLoading ? <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">{tx("Loading form...")}</div> : (
           <form onSubmit={handleSubmit} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="space-y-2 text-sm font-medium text-slate-700"><span>Invoice number</span><input required value={form.invoiceNumber} onChange={(e) => handleChange("invoiceNumber", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
+              <label className="space-y-2 text-sm font-medium text-slate-700"><span>{tx("Invoice number")}</span><input required value={form.invoiceNumber} onChange={(e) => handleChange("invoiceNumber", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
               <label className="space-y-2 text-sm font-medium text-slate-700"><span>Bill type</span><select value={form.billType} onChange={(e) => setForm((c) => ({ ...c, billType: e.target.value as "SALE" | "PURCHASE", customerId: "", supplierId: "", purchaseOrderId: "" }))} className="w-full rounded-xl border border-slate-300 px-3 py-2.5"><option value="SALE">Sales Invoice</option><option value="PURCHASE">Purchase Bill</option></select></label>
-              <label className="space-y-2 text-sm font-medium text-slate-700"><span>Company</span><select required value={form.companyId} onChange={(e) => setForm((c) => ({ ...c, companyId: e.target.value, customerId: "", supplierId: "", purchaseOrderId: "", brokerId: "" }))} className="w-full rounded-xl border border-slate-300 px-3 py-2.5"><option value="">Select company</option>{companies.map((company) => <option key={company.id} value={company.id}>{company.parentCompany ? `${company.parentCompany.name} / ${company.name}` : company.name}</option>)}</select></label>
-              <label className="space-y-2 text-sm font-medium text-slate-700"><span>Invoice date</span><input required type="date" value={form.invoiceDate} onChange={(e) => handleChange("invoiceDate", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
+              <label className="space-y-2 text-sm font-medium text-slate-700"><span>{tx("Company")}</span><select required value={form.companyId} onChange={(e) => setForm((c) => ({ ...c, companyId: e.target.value, customerId: "", supplierId: "", purchaseOrderId: "", brokerId: "" }))} className="w-full rounded-xl border border-slate-300 px-3 py-2.5"><option value="">{tx("Select company")}</option>{companies.map((company) => <option key={company.id} value={company.id}>{company.parentCompany ? `${company.parentCompany.name} / ${company.name}` : company.name}</option>)}</select></label>
+              <label className="space-y-2 text-sm font-medium text-slate-700"><span>{tx("Invoice date")}</span><input required type="date" value={form.invoiceDate} onChange={(e) => handleChange("invoiceDate", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
 
               {form.billType === "SALE" ? (
                 <label className="space-y-2 text-sm font-medium text-slate-700 md:col-span-2"><span>Customer</span><select required value={form.customerId} onChange={(e) => handleChange("customerId", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" disabled={!form.companyId}><option value="">Select customer</option>{companyCustomers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
               ) : (
                 <>
-                  <label className="space-y-2 text-sm font-medium text-slate-700"><span>Supplier</span><select required value={form.supplierId} onChange={(e) => setForm((c) => ({ ...c, supplierId: e.target.value, purchaseOrderId: "", totalAmount: "", transportCharges: "0", otherCharges: "0" }))} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" disabled={!form.companyId}><option value="">Select supplier</option>{companySuppliers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
+                  <label className="space-y-2 text-sm font-medium text-slate-700"><span>{tx("Supplier")}</span><select required value={form.supplierId} onChange={(e) => setForm((c) => ({ ...c, supplierId: e.target.value, purchaseOrderId: "", totalAmount: "", transportCharges: "0", otherCharges: "0" }))} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" disabled={!form.companyId}><option value="">{tx("Select supplier")}</option>{companySuppliers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
                   <label className="space-y-2 text-sm font-medium text-slate-700"><span>Purchase order</span><select value={form.purchaseOrderId} onChange={(e) => handleChange("purchaseOrderId", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" disabled={!form.companyId || !form.supplierId}><option value="">Select PO (optional)</option>{availablePurchaseOrders.map((po) => <option key={po.id} value={po.id}>{po.poNumber}</option>)}</select></label>
                   {selectedPoDetail ? (
                     <div className="md:col-span-2 rounded-xl border border-cyan-200 bg-cyan-50 p-3 text-sm text-cyan-800">
@@ -283,11 +285,11 @@ export default function NewBillingPage() {
                 </>
               )}
 
-              <label className="space-y-2 text-sm font-medium text-slate-700"><span>Total amount</span><input required type="number" min="0.01" step="0.01" value={form.totalAmount} onChange={(e) => handleChange("totalAmount", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
-              <label className="space-y-2 text-sm font-medium text-slate-700"><span>Paid amount (partial/full)</span><input type="number" min="0" step="0.01" value={form.paidAmount} onChange={(e) => handleChange("paidAmount", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
-              <label className="space-y-2 text-sm font-medium text-slate-700"><span>GST amount</span><input type="number" min="0" step="0.01" value={form.gstAmount} onChange={(e) => handleChange("gstAmount", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
-              <label className="space-y-2 text-sm font-medium text-slate-700"><span>Transport charges</span><input type="number" min="0" step="0.01" value={form.transportCharges} onChange={(e) => handleChange("transportCharges", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
-              <label className="space-y-2 text-sm font-medium text-slate-700"><span>Other charges</span><input type="number" min="0" step="0.01" value={form.otherCharges} onChange={(e) => handleChange("otherCharges", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
+              <label className="space-y-2 text-sm font-medium text-slate-700"><span>{tx("Total amount")}</span><input required type="number" min="0.01" step="0.01" value={form.totalAmount} onChange={(e) => handleChange("totalAmount", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
+              <label className="space-y-2 text-sm font-medium text-slate-700"><span>{tx("Paid amount")}</span><input type="number" min="0" step="0.01" value={form.paidAmount} onChange={(e) => handleChange("paidAmount", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
+              <label className="space-y-2 text-sm font-medium text-slate-700"><span>{tx("GST amount")}</span><input type="number" min="0" step="0.01" value={form.gstAmount} onChange={(e) => handleChange("gstAmount", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
+              <label className="space-y-2 text-sm font-medium text-slate-700"><span>{tx("Transport charges")}</span><input type="number" min="0" step="0.01" value={form.transportCharges} onChange={(e) => handleChange("transportCharges", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
+              <label className="space-y-2 text-sm font-medium text-slate-700"><span>{tx("Other charges")}</span><input type="number" min="0" step="0.01" value={form.otherCharges} onChange={(e) => handleChange("otherCharges", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
 
               <label className="space-y-2 text-sm font-medium text-slate-700"><span>Broker</span><select value={form.brokerId} onChange={(e) => handleChange("brokerId", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5"><option value="">No broker</option>{companyBrokers.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></label>
               <label className="space-y-2 text-sm font-medium text-slate-700"><span>Brokerage type</span><select value={form.brokerageType} onChange={(e) => handleChange("brokerageType", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5"><option value="">None</option><option value="PERCENT">Percent</option><option value="FIXED">Fixed</option></select></label>
@@ -303,20 +305,20 @@ export default function NewBillingPage() {
                 {isUploadingBill ? <p className="text-xs text-blue-700">Uploading bill...</p> : null}
               </label>
               <label className="space-y-2 text-sm font-medium text-slate-700"><span>Original bill amount</span><input type="number" min="0" step="0.01" value={form.originalBillAmount} onChange={(e) => handleChange("originalBillAmount", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
-              <label className="space-y-2 text-sm font-medium text-slate-700"><span>Due date</span><input type="date" value={form.dueDate} onChange={(e) => handleChange("dueDate", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
+              <label className="space-y-2 text-sm font-medium text-slate-700"><span>{tx("Due date")}</span><input type="date" value={form.dueDate} onChange={(e) => handleChange("dueDate", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
 
               {form.billType === "PURCHASE" ? <label className="space-y-2 text-sm font-medium text-slate-700 md:col-span-2"><span>Journal narration (PO billing)</span><textarea value={form.journalNarration} onChange={(e) => handleChange("journalNarration", e.target.value)} className="min-h-20 w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label> : null}
 
-              <label className="space-y-2 text-sm font-medium text-slate-700"><span>Status</span><select value={form.status} onChange={(e) => handleChange("status", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5"><option value="Draft">Draft</option><option value="Issued">Issued</option><option value="Paid">Paid</option><option value="Overdue">Overdue</option></select></label>
+              <label className="space-y-2 text-sm font-medium text-slate-700"><span>{tx("Status")}</span><select value={form.status} onChange={(e) => handleChange("status", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5"><option value="Draft">Draft</option><option value="Issued">Issued</option><option value="Paid">Paid</option><option value="Overdue">Overdue</option></select></label>
               <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">Payment status: <strong>{paymentStatus}</strong> | Balance: Rs {balanceAmount.toLocaleString("en-IN")}</div>
-              <label className="space-y-2 text-sm font-medium text-slate-700 md:col-span-2"><span>Notes</span><textarea value={form.notes} onChange={(e) => handleChange("notes", e.target.value)} className="min-h-24 w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
+              <label className="space-y-2 text-sm font-medium text-slate-700 md:col-span-2"><span>{tx("Notes")}</span><textarea value={form.notes} onChange={(e) => handleChange("notes", e.target.value)} className="min-h-24 w-full rounded-xl border border-slate-300 px-3 py-2.5" /></label>
             </div>
 
             {error ? <div className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
 
             <div className="flex gap-3">
-              <button type="submit" disabled={isSaving} className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60">{isSaving ? "Saving..." : "Save billing"}</button>
-              <Link href="/billing" className="rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</Link>
+              <button type="submit" disabled={isSaving} className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60">{isSaving ? "Saving..." : tx("Save billing")}</button>
+              <Link href="/billing" className="rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">{tx("Cancel")}</Link>
             </div>
           </form>
         )}

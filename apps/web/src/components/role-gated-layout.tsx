@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
+import { useLocale } from "@/components/locale-provider";
 import { canUserAccessPage } from "@/lib/auth";
 
 type MenuItem = { label: string; href: string; page: string };
@@ -137,6 +138,7 @@ const roleMenus: Record<string, MenuGroup[]> = {
 };
 
 export function RoleGatedLayout({ role }: { role: string }) {
+  const { tx } = useLocale();
   const pathname = usePathname();
   const menuGroups = useMemo(() => {
     const groups = roleMenus[role] ?? roleMenus.viewer;
@@ -160,14 +162,14 @@ export function RoleGatedLayout({ role }: { role: string }) {
       <nav className="space-y-4">
         {menuGroups.map((group) => (
           <div key={group.label} className="space-y-1.5">
-            <p className="px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">{group.label}</p>
+            <p className="px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">{tx(group.label)}</p>
             {group.items.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={`block rounded-xl px-4 py-3 text-sm font-medium transition ${pathname === item.href ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}
               >
-                {item.label}
+                {tx(item.label)}
               </Link>
             ))}
           </div>

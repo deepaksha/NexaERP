@@ -9,6 +9,9 @@ From the project root:
 ```powershell
 docker compose up -d
 psql -h localhost -U erpuser -d erpdb -f .\database\erp-seed.sql
+
+# Optional: apply normalization foundation (non-breaking)
+psql -h localhost -U erpuser -d erpdb -f .\database\erp-normalization.sql
 ```
 
 If `psql` is not installed, use any PostgreSQL client such as pgAdmin or DBeaver.
@@ -30,4 +33,7 @@ If `psql` is not installed, use any PostgreSQL client such as pgAdmin or DBeaver
 
 ## Notes
 
-The project uses TypeORM with `synchronize: true`, so a fresh database can also be created automatically. This SQL file is primarily for developer testing and sample data consistency.
+The project uses TypeORM with `synchronize: false`, so schema changes must be applied through SQL scripts or migrations.
+`erp-normalization.sql` adds normalized foundation tables and compatibility views without breaking existing API tables.
+
+For EPR and India trademark-aware normalized modeling, see `docs/epr-india-normalized-erd.md` and section `6) EPR + India trademark compliance foundation (normalized)` in `erp-normalization.sql`.

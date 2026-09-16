@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ProtectedPage } from "@/components/protected-page";
+import { useLocale } from "@/components/locale-provider";
 import { FormEvent, useEffect, useState } from "react";
 
 type Company = { id: number; name: string; parentCompany?: { id: number; name: string } | null };
@@ -35,6 +36,7 @@ const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:400
 const invoicePattern = /^[A-Z0-9][A-Z0-9/-]{2,29}$/i;
 
 export default function PurchaseDetailPage() {
+  const { tx } = useLocale();
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const purchaseId = Number(params.id);
@@ -139,38 +141,38 @@ export default function PurchaseDetailPage() {
       <div className="mx-auto max-w-5xl space-y-6 px-6 py-8">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-blue-600">Procurement</p>
-            <h1 className="mt-2 text-3xl font-bold text-slate-900">Edit Purchase</h1>
+            <p className="text-sm font-medium uppercase tracking-[0.2em] text-blue-600">{tx("Procurement")}</p>
+            <h1 className="mt-2 text-3xl font-bold text-slate-900">{tx("Edit Purchase")}</h1>
           </div>
-          <Link href="/purchases" className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Back to list</Link>
+          <Link href="/purchases" className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">{tx("Back to list")}</Link>
         </div>
 
         {isLoading ? (
-          <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">Loading purchase...</div>
+          <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">{tx("Loading purchase...")}</div>
         ) : (
           <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
             <div className="grid gap-4 md:grid-cols-2">
               <label className="space-y-2 text-sm font-medium text-slate-700">
-                <span>Invoice number</span>
+                <span>{tx("Invoice number")}</span>
                 <input required value={form.invoiceNumber} onChange={(e) => handleChange("invoiceNumber", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" />
               </label>
               <label className="space-y-2 text-sm font-medium text-slate-700">
-                <span>Purchase date</span>
+                <span>{tx("Purchase date")}</span>
                 <input required type="date" value={form.purchaseDate} onChange={(e) => handleChange("purchaseDate", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" />
               </label>
               <label className="space-y-2 text-sm font-medium text-slate-700">
-                <span>Company</span>
+                <span>{tx("Company")}</span>
                 <select required value={form.companyId} onChange={(e) => setForm((current) => ({ ...current, companyId: e.target.value, supplierId: "" }))} className="w-full rounded-xl border border-slate-300 px-3 py-2.5">
-                  <option value="">Select company</option>
+                  <option value="">{tx("Select company")}</option>
                   {companies.map((company) => (
                     <option key={company.id} value={company.id}>{company.parentCompany ? `${company.parentCompany.name} / ${company.name}` : company.name}</option>
                   ))}
                 </select>
               </label>
               <label className="space-y-2 text-sm font-medium text-slate-700">
-                <span>Supplier</span>
+                <span>{tx("Supplier")}</span>
                 <select required value={form.supplierId} onChange={(e) => handleChange("supplierId", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" disabled={!form.companyId}>
-                  <option value="">Select supplier</option>
+                  <option value="">{tx("Select supplier")}</option>
                   {companySuppliers.map((supplier) => (
                     <option key={supplier.id} value={supplier.id}>{supplier.name}</option>
                   ))}
@@ -189,11 +191,11 @@ export default function PurchaseDetailPage() {
                 <input required type="number" min="0" step="0.01" value={form.unitPrice} onChange={(e) => handleChange("unitPrice", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5" />
               </label>
               <label className="space-y-2 text-sm font-medium text-slate-700">
-                <span>Payment status</span>
+                <span>{tx("Payment status")}</span>
                 <select value={form.paymentStatus} onChange={(e) => handleChange("paymentStatus", e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-2.5">
-                  <option value="Paid">Paid</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Partial">Partial</option>
+                  <option value="Paid">{tx("Paid")}</option>
+                  <option value="Pending">{tx("Pending")}</option>
+                  <option value="Partial">{tx("Partial")}</option>
                 </select>
               </label>
             </div>
@@ -202,9 +204,9 @@ export default function PurchaseDetailPage() {
 
             <div className="flex gap-3">
               <button type="submit" disabled={isSaving} className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60">
-                {isSaving ? "Updating..." : "Update purchase"}
+                {isSaving ? "Updating..." : tx("Update purchase")}
               </button>
-              <Link href="/purchases" className="rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</Link>
+              <Link href="/purchases" className="rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">{tx("Cancel")}</Link>
             </div>
           </form>
         )}

@@ -258,6 +258,8 @@ Recommended page access mapping:
 
 - Run the API on a VPS with Docker and Nginx
 - Use PostgreSQL and Redis in the server environment
+
+For near-zero-budget pilot deployment (Vercel + Render + Neon/Supabase), follow `docs/deployment-low-budget.md`.
 - Put the app behind Cloudflare or Nginx SSL termination
 - Configure backups, monitoring, and environment secrets
 

@@ -18,6 +18,7 @@ import { ReportsModule } from './reports/reports.module';
 import { PurchaseOrdersModule } from './purchase-orders/purchase-orders.module';
 import { ProductRatesModule } from './product-rates/product-rates.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { EprModule } from './epr/epr.module';
 
 @Module({
   imports: [
@@ -28,17 +29,34 @@ import { NotificationsModule } from './notifications/notifications.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('DB_HOST', 'localhost'),
-        port: configService.get<number>('DB_PORT', 5432),
-        username: configService.get<string>('DB_USERNAME', 'erpuser'),
-        password: configService.get<string>('DB_PASSWORD', 'erpsecret'),
-        database: configService.get<string>('DB_NAME', 'erpdb'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: false,
-        logging: false,
-      }),
+      useFactory: (configService: ConfigService) => {
+        const databaseUrl = configService.get<string>('DATABASE_URL');
+        const dbSslEnabled = configService.get<string>('DB_SSL', 'false') === 'true';
+
+        const commonOptions = {
+          type: 'postgres' as const,
+          entities: [__dirname + '/**/*.entity{.ts,.js}'],
+          synchronize: false,
+          logging: false,
+        };
+
+        if (databaseUrl?.trim()) {
+          return {
+            ...commonOptions,
+            url: databaseUrl,
+            ssl: dbSslEnabled ? { rejectUnauthorized: false } : false,
+          };
+        }
+
+        return {
+          ...commonOptions,
+          host: configService.get<string>('DB_HOST', 'localhost'),
+          port: configService.get<number>('DB_PORT', 5432),
+          username: configService.get<string>('DB_USERNAME', 'erpuser'),
+          password: configService.get<string>('DB_PASSWORD', 'erpsecret'),
+          database: configService.get<string>('DB_NAME', 'erpdb'),
+        };
+      },
     }),
     AuthModule,
     ProductsModule,
@@ -55,6 +73,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     ReportsModule,
     ProductRatesModule,
     NotificationsModule,
+    EprModule,
   ],
   controllers: [AppController],
   providers: [AppService],

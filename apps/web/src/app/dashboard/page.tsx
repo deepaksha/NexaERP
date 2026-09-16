@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ProtectedPage } from "@/components/protected-page";
 import { RoleGatedLayout } from "@/components/role-gated-layout";
+import { useLocale } from "@/components/locale-provider";
 import { canUserAccessPage } from "@/lib/auth";
 
 type ProductApiResponse = {
@@ -77,11 +78,13 @@ function toNumber(value: string | number | null | undefined): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function formatCurrency(value: number): string {
-  return `Rs ${value.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+function formatCurrency(value: number, locale: string): string {
+  const localeTag = locale === "hi" || locale === "mr" ? "hi-IN" : "en-IN";
+  return `Rs ${value.toLocaleString(localeTag, { maximumFractionDigits: 2 })}`;
 }
 
 export default function DashboardPage() {
+  const { locale, tx } = useLocale();
   const [userRole, setUserRole] = useState("viewer");
   const [userName, setUserName] = useState("Team");
   const [products, setProducts] = useState<ProductApiResponse[]>([]);
@@ -259,7 +262,7 @@ export default function DashboardPage() {
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-700">Financial command center</p>
-                <h1 className="mt-2 text-3xl font-bold text-slate-900">Business Summary</h1>
+                <h1 className="mt-2 text-3xl font-bold text-slate-900">{tx("Business Summary")}</h1>
                 <p className="mt-1 text-sm font-medium text-slate-700">Welcome back, {userName}.</p>
                 <p className="mt-1 text-sm text-slate-600">Live signal for profit, taxes, vendor rates, broker activity, and receivables.</p>
               </div>
@@ -271,7 +274,7 @@ export default function DashboardPage() {
                   href="/reports"
                   className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50"
                 >
-                  Open reports
+                  {tx("Open reports")}
                 </Link>
               </div>
             </div>
@@ -280,7 +283,7 @@ export default function DashboardPage() {
           <section className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-bold text-slate-900">Quick Actions</h3>
+                <h3 className="text-lg font-bold text-slate-900">{tx("Quick Actions")}</h3>
                 <span className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Do work faster</span>
               </div>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -299,12 +302,12 @@ export default function DashboardPage() {
 
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-bold text-slate-900">Today Priorities</h3>
+                <h3 className="text-lg font-bold text-slate-900">{tx("Today Priorities")}</h3>
                 <span className="text-xs text-slate-500">Auto snapshot</span>
               </div>
               <div className="space-y-3 text-sm text-slate-700">
                 <div className="rounded-xl bg-amber-50 px-3 py-2 text-amber-800">
-                  Pending collections: <strong>{formatCurrency(metrics.pendingAmount)}</strong>
+                  Pending collections: <strong>{formatCurrency(metrics.pendingAmount, locale)}</strong>
                 </div>
                 <div className="rounded-xl bg-rose-50 px-3 py-2 text-rose-800">
                   Low stock alerts: <strong>{lowStockAlerts.length}</strong>
@@ -330,10 +333,10 @@ export default function DashboardPage() {
 
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {[
-              { label: "Gross Profit", value: formatCurrency(metrics.grossProfit), hint: metrics.grossProfit >= 0 ? "Profit" : "Loss", tone: metrics.grossProfit >= 0 ? "emerald" : "rose" },
-              { label: "Pending Amount", value: formatCurrency(metrics.pendingAmount), hint: "Sales + Billing due", tone: "amber" },
-              { label: "Output GST", value: formatCurrency(metrics.gstOut), hint: "Tax on sales", tone: "blue" },
-              { label: "Input GST", value: formatCurrency(metrics.gstIn), hint: "Tax on purchase", tone: "teal" },
+              { label: "Gross Profit", value: formatCurrency(metrics.grossProfit, locale), hint: metrics.grossProfit >= 0 ? "Profit" : "Loss", tone: metrics.grossProfit >= 0 ? "emerald" : "rose" },
+              { label: "Pending Amount", value: formatCurrency(metrics.pendingAmount, locale), hint: "Sales + Billing due", tone: "amber" },
+              { label: "Output GST", value: formatCurrency(metrics.gstOut, locale), hint: "Tax on sales", tone: "blue" },
+              { label: "Input GST", value: formatCurrency(metrics.gstIn, locale), hint: "Tax on purchase", tone: "teal" },
             ].map((stat) => (
               <div key={stat.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <p className="text-sm font-medium text-slate-500">{stat.label}</p>
@@ -378,11 +381,11 @@ export default function DashboardPage() {
                           <p className="text-sm text-slate-600">{row.supplierName}</p>
                         </div>
                         <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                          {formatCurrency(row.avgUnitPrice)} avg
+                          {formatCurrency(row.avgUnitPrice, locale)} avg
                         </span>
                       </div>
                       <p className="mt-2 text-xs text-slate-500">
-                        Best: {formatCurrency(row.minUnitPrice)} | Max: {formatCurrency(row.maxUnitPrice)} | Samples: {row.sampleCount}
+                        Best: {formatCurrency(row.minUnitPrice, locale)} | Max: {formatCurrency(row.maxUnitPrice, locale)} | Samples: {row.sampleCount}
                       </p>
                     </div>
                   ))
@@ -391,7 +394,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <h3 className="text-xl font-bold text-slate-900">Alerts</h3>
+              <h3 className="text-xl font-bold text-slate-900">{tx("Alerts")}</h3>
 
               {alertError ? (
                 <div className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-700">{alertError}</div>
@@ -411,7 +414,7 @@ export default function DashboardPage() {
                     No products are at or below their low stock threshold.
                   </div>
                 )}
-                <div className="rounded-xl bg-amber-50 p-3 text-amber-700">Pending collections: {formatCurrency(metrics.pendingAmount)}</div>
+                <div className="rounded-xl bg-amber-50 p-3 text-amber-700">Pending collections: {formatCurrency(metrics.pendingAmount, locale)}</div>
                 <div className="rounded-xl bg-blue-50 p-3 text-blue-700">Documents paid: {metrics.paymentScore}% of {metrics.totalDocuments}</div>
               </div>
             </div>
@@ -434,7 +437,7 @@ export default function DashboardPage() {
                         <p className="font-semibold text-slate-900">#{index + 1} {broker.name}</p>
                         <p className="text-xs text-slate-500">Deals: {broker.deals}</p>
                       </div>
-                      <p className="text-sm font-semibold text-slate-800">{formatCurrency(broker.value)}</p>
+                      <p className="text-sm font-semibold text-slate-800">{formatCurrency(broker.value, locale)}</p>
                     </div>
                   ))
                 )}

@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLocale } from "@/components/locale-provider";
 
 const STORAGE_KEY = "nexaerp-session";
 
 export default function PublicLoginPage() {
   const router = useRouter();
+  const { t } = useLocale();
 
   const handleLogin = () => {
     const session = {
@@ -26,25 +28,25 @@ export default function PublicLoginPage() {
         <div className="hidden bg-slate-900 p-10 text-white md:flex md:flex-col md:justify-between">
           <div>
             <p className="text-sm font-medium uppercase tracking-[0.28em] text-blue-300">NexaERP</p>
-            <h1 className="mt-6 text-4xl font-bold leading-tight">Run your business with clarity.</h1>
+            <h1 className="mt-6 text-4xl font-bold leading-tight">{t.authRunBusiness}</h1>
           </div>
 
           <div className="space-y-4 text-sm text-slate-300">
-            <p>• Inventory management</p>
-            <p>• Sales and invoicing</p>
-            <p>• Purchase and reporting</p>
+            <p>{`• ${t.authInventoryMgmt}`}</p>
+            <p>{`• ${t.authSalesInvoicing}`}</p>
+            <p>{`• ${t.authPurchaseReporting}`}</p>
           </div>
         </div>
 
         <div className="p-8 md:p-10">
           <div className="mb-8">
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-blue-600">Welcome back</p>
-            <h2 className="mt-2 text-3xl font-bold text-slate-900">Login</h2>
+            <p className="text-sm font-medium uppercase tracking-[0.2em] text-blue-600">{t.authWelcomeBack}</p>
+            <h2 className="mt-2 text-3xl font-bold text-slate-900">{t.authLoginTitle}</h2>
           </div>
 
           <form className="space-y-5">
             <label className="block text-sm font-medium text-slate-700">
-              <span className="mb-2 block">Email</span>
+              <span className="mb-2 block">{t.authEmail}</span>
               <input
                 type="email"
                 defaultValue="admin@nexaerp.com"
@@ -53,7 +55,7 @@ export default function PublicLoginPage() {
             </label>
 
             <label className="block text-sm font-medium text-slate-700">
-              <span className="mb-2 block">Password</span>
+              <span className="mb-2 block">{t.authPassword}</span>
               <input
                 type="password"
                 defaultValue="password123"
@@ -64,10 +66,10 @@ export default function PublicLoginPage() {
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 text-slate-600">
                 <input type="checkbox" className="h-4 w-4 rounded border-slate-300" />
-                Remember me
+                {t.authRememberMe}
               </label>
               <Link href="/reset-password" className="text-blue-600 hover:text-blue-700">
-                Reset password?
+                {t.authResetPasswordLink}
               </Link>
             </div>
 
@@ -76,13 +78,13 @@ export default function PublicLoginPage() {
               onClick={handleLogin}
               className="block w-full rounded-xl bg-blue-600 px-4 py-3 text-center font-medium text-white shadow-sm transition hover:bg-blue-700"
             >
-              Sign in
+              {t.actionSignIn}
             </button>
 
             <p className="text-center text-sm text-slate-500">
-              New here?{" "}
+              {`${t.authNewHere} `}
               <Link href="/register" className="font-medium text-blue-600 hover:text-blue-700">
-                Create an account
+                {t.authCreateAccountLink}
               </Link>
             </p>
           </form>

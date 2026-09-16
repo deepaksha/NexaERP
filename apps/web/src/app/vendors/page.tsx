@@ -1,6 +1,7 @@
 "use client";
 
 import { ProtectedPage } from "@/components/protected-page";
+import { useLocale } from "@/components/locale-provider";
 import { useEffect, useState } from "react";
 
 type Company = { id: number; name: string; parentCompany?: { id: number; name: string } | null };
@@ -10,6 +11,7 @@ type PriceInsight = { supplierId: number; supplierName: string; productName: str
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000/api";
 
 export default function VendorsPage() {
+  const { tx } = useLocale();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [insights, setInsights] = useState<PriceInsight[]>([]);
@@ -46,17 +48,17 @@ export default function VendorsPage() {
       <div className="mx-auto max-w-7xl space-y-6 px-6 py-8">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-blue-600">Masters</p>
-            <h1 className="mt-2 text-3xl font-bold text-slate-900">Vendor Database</h1>
+            <p className="text-sm font-medium uppercase tracking-[0.2em] text-blue-600">{tx("Masters")}</p>
+            <h1 className="mt-2 text-3xl font-bold text-slate-900">{tx("Vendors")}</h1>
           </div>
           <select value={selectedCompanyId} onChange={(e) => setSelectedCompanyId(e.target.value)} className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm">
-            <option value="all">All companies</option>
+            <option value="all">{tx("All companies")}</option>
             {companies.map((c) => <option key={c.id} value={c.id}>{c.parentCompany ? `${c.parentCompany.name} / ${c.name}` : c.name}</option>)}
           </select>
         </div>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-bold text-slate-900">Vendors</h2>
+          <h2 className="text-xl font-bold text-slate-900">{tx("Vendors")}</h2>
           <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200">
             <table className="min-w-full text-left text-sm"><thead className="bg-slate-50 text-slate-700"><tr><th className="px-4 py-3">Vendor</th><th className="px-4 py-3">Contact</th><th className="px-4 py-3">Phone</th><th className="px-4 py-3">GST</th></tr></thead><tbody>{vendors.map((v) => <tr key={v.id} className="border-t border-slate-200"><td className="px-4 py-3">{v.name}</td><td className="px-4 py-3">{v.contactPerson ?? "-"}</td><td className="px-4 py-3">{v.phone ?? "-"}</td><td className="px-4 py-3">{v.gstNumber ?? "-"}</td></tr>)}</tbody></table>
           </div>
