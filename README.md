@@ -2,6 +2,16 @@
 
 A small-business ERP monorepo for inventory, sales, purchase, billing, customer/supplier management, user roles, and reporting.
 
+## CI quality badges
+
+![API coverage threshold](docs/badges/api-coverage-threshold.svg)
+
+Current enforced quality gates in CI:
+
+- API test coverage threshold (global 70% for statements, branches, functions, and lines)
+- Conventional commit checks (commit messages + PR title)
+- Dependency scanning for API and Web (artifact upload + fail on critical vulnerabilities)
+
 ## Tech stack we are using
 
 - Frontend: Next.js 16 + TypeScript + Tailwind CSS
