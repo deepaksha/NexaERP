@@ -1,0 +1,70 @@
+name: ESLint PR Auto Fix
+
+on:
+  pull_request:
+    branches: [main, develop]
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  autofix-pr-branch:
+    name: Auto-fix and commit on PR branch
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Setup Node for API
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install API deps
+        working-directory: apps/api
+        run: npm ci
+
+      - name: Setup Node for Web
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install Web deps
+        working-directory: apps/web
+        run: npm ci
+
+      - name: Auto-fix API lint issues
+        working-directory: apps/api
+        run: npm run lint:fix
+
+      - name: Auto-fix Web lint issues
+        working-directory: apps/web
+        run: npm run lint:fix
+
+      - name: Commit and push if changes exist
+        id: auto-commit
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(lint): auto-fix eslint issues"
+          branch: ${{ github.event.pull_request.head.ref }}
+
+      - name: Comment PR when auto-fix committed
+        if: steps.auto-commit.outputs.changes_detected == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: 'ESLint auto-fix committed to this PR branch by workflow **ESLint PR Auto Fix**.',
+            });

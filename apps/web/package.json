@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "npm run lint:check",
+    "lint:check": "eslint src --max-warnings=0",
+    "lint:fix": "eslint src --fix",
+    "lint:json": "eslint src -f json -o eslint-report.json || true",
+    "lint:sarif": "eslint src -f @microsoft/eslint-formatter-sarif -o eslint-report.sarif || true"
   },
   "dependencies": {
     "next": "16.3.4",
@@ -14,6 +18,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
