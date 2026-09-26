@@ -1,0 +1,186 @@
+name: GitHub Copilot Prompt Engineer Checks
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'apps/**'
+      - 'database/**'
+      - 'package*.json'
+      - '.github/workflows/**'
+  push:
+    branches: [main, develop]
+    paths:
+      - 'apps/**'
+      - 'database/**'
+      - 'package*.json'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  ci-quality:
+    name: Copilot CI and Quality Gates
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - project: api
+            working_directory: apps/api
+            lock_file: apps/api/package-lock.json
+          - project: web
+            working_directory: apps/web
+            lock_file: apps/web/package-lock.json
+    defaults:
+      run:
+        working-directory: ${{ matrix.working_directory }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ matrix.lock_file }}
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        if: matrix.project == 'api'
+        run: npm run test -- --runInBand
+
+      - name: Test with coverage
+        if: matrix.project == 'api'
+        run: npm run test:cov -- --runInBand
+
+      - name: Upload coverage artifact
+        if: matrix.project == 'api'
+        uses: actions/upload-artifact@v4
+        with:
+          name: copilot-api-coverage-report
+          path: apps/api/coverage
+
+      - name: Publish coverage summary
+        if: matrix.project == 'api'
+        run: |
+          node -e "const fs=require('fs');const p='coverage/coverage-summary.json';const c=JSON.parse(fs.readFileSync(p,'utf8')).total;const f=(n)=>Number(n.pct||0).toFixed(2);const body=['### Copilot API Coverage Summary','','| Metric | Value |','| --- | --- |',`| Statements | ${f(c.statements)}% |`,`| Branches | ${f(c.branches)}% |`,`| Functions | ${f(c.functions)}% |`,`| Lines | ${f(c.lines)}% |`].join('\\n');fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,body+'\\n');"
+
+  conventional-commit-check:
+    name: Copilot Conventional Commit Validation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Validate commits follow conventional commits
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pattern = /^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([^)]+\))?!?: .+/;
+            const commits = await github.paginate(github.rest.pulls.listCommits, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100,
+            });
+            const invalid = commits
+              .map((c) => ({ sha: c.sha.substring(0, 7), subject: (c.commit.message || '').split('\n')[0] }))
+              .filter((c) => !pattern.test(c.subject));
+            if (invalid.length > 0) {
+              const details = invalid.map((c) => `- ${c.sha}: ${c.subject}`).join('\n');
+              core.setFailed(`Conventional commit validation failed for:\n${details}`);
+            }
+
+      - name: Validate PR title follows conventional commits
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          requireScope: false
+
+  dependency-scan:
+    name: Copilot Dependency Scan
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - project: api
+            working_directory: apps/api
+            lock_file: apps/api/package-lock.json
+          - project: web
+            working_directory: apps/web
+            lock_file: apps/web/package-lock.json
+    defaults:
+      run:
+        working-directory: ${{ matrix.working_directory }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ matrix.lock_file }}
+
+      - name: Install
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --omit=dev --json > npm-audit.json || true
+
+      - name: Parse audit report
+        id: parse
+        run: |
+          node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync('npm-audit.json','utf8'));const v=(r.metadata&&r.metadata.vulnerabilities)||{};const o=process.env.GITHUB_OUTPUT;fs.appendFileSync(o,`critical=${v.critical||0}\\n`);fs.appendFileSync(o,`high=${v.high||0}\\n`);fs.appendFileSync(o,`moderate=${v.moderate||0}\\n`);fs.appendFileSync(o,`low=${v.low||0}\\n`);fs.appendFileSync(o,`info=${v.info||0}\\n`);fs.appendFileSync(o,`total=${v.total||0}\\n`);"
+
+      - name: Upload audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: copilot-${{ matrix.project }}-npm-audit-report
+          path: ${{ matrix.working_directory }}/npm-audit.json
+
+      - name: Publish audit summary
+        run: |
+          {
+            echo "### Copilot ${{ matrix.project }} Dependency Scan"
+            echo ""
+            echo "| Severity | Count |"
+            echo "| --- | ---: |"
+            echo "| Critical | ${{ steps.parse.outputs.critical }} |"
+            echo "| High | ${{ steps.parse.outputs.high }} |"
+            echo "| Moderate | ${{ steps.parse.outputs.moderate }} |"
+            echo "| Low | ${{ steps.parse.outputs.low }} |"
+            echo "| Info | ${{ steps.parse.outputs.info }} |"
+            echo "| Total | ${{ steps.parse.outputs.total }} |"
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: Enforce dependency gate
+        run: |
+          if [ "${{ steps.parse.outputs.critical }}" -gt 0 ]; then
+            echo "Critical vulnerabilities found in ${{ matrix.project }} dependencies."
+            exit 1
+          fi

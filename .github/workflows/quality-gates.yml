@@ -1,0 +1,44 @@
+name: Quality Gates
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  api-coverage-gate:
+    name: API Coverage Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install
+        working-directory: apps/api
+        run: npm ci
+
+      - name: Test with coverage
+        working-directory: apps/api
+        run: npm run test:cov -- --runInBand
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-coverage-report
+          path: apps/api/coverage
+
+      - name: Publish coverage summary
+        run: |
+          node -e "const fs=require('fs');const p='apps/api/coverage/coverage-summary.json';const c=JSON.parse(fs.readFileSync(p,'utf8')).total;const f=(n)=>Number(n.pct||0).toFixed(2);const body=['### API Coverage Summary','','| Metric | Value |','| --- | --- |',`| Statements | ${f(c.statements)}% |`,`| Branches | ${f(c.branches)}% |`,`| Functions | ${f(c.functions)}% |`,`| Lines | ${f(c.lines)}% |`].join('\n');fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,body+'\n');"
