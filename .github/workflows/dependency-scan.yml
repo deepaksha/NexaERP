@@ -1,0 +1,169 @@
+name: Dependency Scan
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  api-npm-audit:
+    name: API Dependency Scan
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --omit=dev --json > npm-audit.json || true
+
+      - name: Parse audit report
+        id: parse
+        run: |
+          node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync('npm-audit.json','utf8'));const v=(r.metadata&&r.metadata.vulnerabilities)||{};const o=process.env.GITHUB_OUTPUT;fs.appendFileSync(o,`critical=${v.critical||0}\n`);fs.appendFileSync(o,`high=${v.high||0}\n`);fs.appendFileSync(o,`moderate=${v.moderate||0}\n`);fs.appendFileSync(o,`low=${v.low||0}\n`);fs.appendFileSync(o,`info=${v.info||0}\n`);fs.appendFileSync(o,`total=${v.total||0}\n`);"
+
+      - name: Upload audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-npm-audit-report
+          path: apps/api/npm-audit.json
+
+      - name: Publish audit summary
+        run: |
+          {
+            echo "### API Dependency Scan"
+            echo ""
+            echo "| Severity | Count |"
+            echo "| --- | ---: |"
+            echo "| Critical | ${{ steps.parse.outputs.critical }} |"
+            echo "| High | ${{ steps.parse.outputs.high }} |"
+            echo "| Moderate | ${{ steps.parse.outputs.moderate }} |"
+            echo "| Low | ${{ steps.parse.outputs.low }} |"
+            echo "| Info | ${{ steps.parse.outputs.info }} |"
+            echo "| Total | ${{ steps.parse.outputs.total }} |"
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment PR with audit summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- dep-scan:api -->';
+            const body = `${marker}\n### API Dependency Scan\n\n| Severity | Count |\n| --- | ---: |\n| Critical | ${{ steps.parse.outputs.critical }} |\n| High | ${{ steps.parse.outputs.high }} |\n| Moderate | ${{ steps.parse.outputs.moderate }} |\n| Low | ${{ steps.parse.outputs.low }} |\n| Info | ${{ steps.parse.outputs.info }} |\n| Total | ${{ steps.parse.outputs.total }} |`;
+            const issue_number = context.issue.number;
+            const { owner, repo } = context.repo;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+            const existing = comments.find((c) => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
+
+      - name: Enforce dependency gate
+        run: |
+          if [ "${{ steps.parse.outputs.critical }}" -gt 0 ]; then
+            echo "Critical vulnerabilities found in API dependencies."
+            exit 1
+          fi
+
+  web-npm-audit:
+    name: Web Dependency Scan
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --omit=dev --json > npm-audit.json || true
+
+      - name: Parse audit report
+        id: parse
+        run: |
+          node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync('npm-audit.json','utf8'));const v=(r.metadata&&r.metadata.vulnerabilities)||{};const o=process.env.GITHUB_OUTPUT;fs.appendFileSync(o,`critical=${v.critical||0}\n`);fs.appendFileSync(o,`high=${v.high||0}\n`);fs.appendFileSync(o,`moderate=${v.moderate||0}\n`);fs.appendFileSync(o,`low=${v.low||0}\n`);fs.appendFileSync(o,`info=${v.info||0}\n`);fs.appendFileSync(o,`total=${v.total||0}\n`);"
+
+      - name: Upload audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-npm-audit-report
+          path: apps/web/npm-audit.json
+
+      - name: Publish audit summary
+        run: |
+          {
+            echo "### Web Dependency Scan"
+            echo ""
+            echo "| Severity | Count |"
+            echo "| --- | ---: |"
+            echo "| Critical | ${{ steps.parse.outputs.critical }} |"
+            echo "| High | ${{ steps.parse.outputs.high }} |"
+            echo "| Moderate | ${{ steps.parse.outputs.moderate }} |"
+            echo "| Low | ${{ steps.parse.outputs.low }} |"
+            echo "| Info | ${{ steps.parse.outputs.info }} |"
+            echo "| Total | ${{ steps.parse.outputs.total }} |"
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment PR with audit summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- dep-scan:web -->';
+            const body = `${marker}\n### Web Dependency Scan\n\n| Severity | Count |\n| --- | ---: |\n| Critical | ${{ steps.parse.outputs.critical }} |\n| High | ${{ steps.parse.outputs.high }} |\n| Moderate | ${{ steps.parse.outputs.moderate }} |\n| Low | ${{ steps.parse.outputs.low }} |\n| Info | ${{ steps.parse.outputs.info }} |\n| Total | ${{ steps.parse.outputs.total }} |`;
+            const issue_number = context.issue.number;
+            const { owner, repo } = context.repo;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+            const existing = comments.find((c) => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
+
+      - name: Enforce dependency gate
+        run: |
+          if [ "${{ steps.parse.outputs.critical }}" -gt 0 ]; then
+            echo "Critical vulnerabilities found in Web dependencies."
+            exit 1
+          fi
